@@ -1,20 +1,6 @@
-# Data Extraction Pipeline
+# Data Extraction, Transformation and Storage Pipeline
 ## Overview
-This document describes the implementation of an Apache Airflow Directed Acyclic Graph (DAG) named data_extraction_pipeline. This DAG is designed to automate the process of extracting data from websites, transforming the data, and storing it in a structured format. The main goal is to streamline the data handling process for websites such as dawn.com and bbc.com.
-
-## DAG Configuration
-Default Arguments
-The DAG is configured with the following default parameters:
-
-Owner: 'airflow' — Identifies the owner of the DAG, useful in a multi-user setup.
-Depends on Past: False — Indicates that the DAG's runs do not depend on the success of previous runs.
-Start Date: May 10, 2024 — The date from which the DAG is considered to have started.
-Email on Failure: False — If set to true, Airflow will send an email to the owner if the DAG fails.
-Email on Retry: False — If set to true, Airflow will send an email to the owner if a task in the DAG retries.
-Retries: 1 — Number of retries that should be attempted on failure.
-Retry Delay: 5 minutes — The delay between retry attempts.
-Schedule
-The DAG is scheduled to run once every day (@daily), which is controlled by the schedule_interval argument.
+This document describes the implementation of an Apache Airflow Directed Acyclic Graph (DAG) named data_extraction_pipeline. This DAG is designed to automate the process of extracting data of articles from the landing pages of news websites www.bbc.com and www.dawn.com, transforming the data, and storing it in a structured format. The main goal is to streamline the data handling process for websites using DVC and Airflow.
 
 ## Tasks
 The DAG comprises three main tasks:
@@ -22,6 +8,7 @@ The DAG comprises three main tasks:
 Extract Data
 Transform Data
 Store Data
+
 ### 1. Extract Data
 This task is responsible for downloading the content from specified URLs (https://www.dawn.com and https://www.bbc.com). It utilizes the Python requests library to make HTTP requests and BeautifulSoup from bs4 for parsing HTML content. The data extracted includes the titles, descriptions, and links from articles.
 
@@ -46,6 +33,16 @@ Task dependencies are set up to ensure that:
 Data extraction must complete before the transformation begins.
 Data transformation must complete before storing the data.
 This sequence ensures data integrity and the successful execution of dependent tasks.
+
+## Challenges Encountered
+#### Web Scraping Limitations: 
+Adaptations required due to changes in source website structures. So, I had to inspect the website and find the element structure for effeciently scrape the title and description of news articles.
+#### DVC Integration: 
+Challenges in automating DVC operations within Airflow tasks.
+#### Dependency Management: 
+Ensuring that all dependencies were correctly managed in the Airflow environment.
+#### Installation of Apache Airflow:
+It was very hard to install and setup the Apache Airflow on Windows using WSL.
 
 ## Conclusion
 This Airflow DAG is designed to automate crucial data handling tasks, reducing manual effort and minimizing errors. By extracting, transforming, and storing web data daily, this pipeline ensures up-to-date data availability for analysis, reporting, or any other downstream use cases.
