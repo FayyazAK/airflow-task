@@ -7,16 +7,28 @@ import pandas as pd
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
+from airflow.operators.bash_operator import BashOperator
 
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2024, 5, 10),
+    'start_date': datetime(2024, 5, 12),
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 1,
+    'retries': 2,
     'retry_delay': timedelta(minutes=5),
 }
+
+def dvc_add_commit_push():
+    """Function to add, commit, and push changes to DVC."""
+    import os
+    os.system('dvc add articles-data.csv')
+    os.system('dvc commit articles-data.csv')
+    os.system('dvc push')
+    os.system('git add .')
+    os.system('git commit -m "new-updated data"')
+    os.system('git push')
+
 
 def extract_data():
     nltk.download('punkt')
@@ -71,9 +83,9 @@ def preprocess_text(text):
     return ' '.join(tokens)
 
 with DAG(
-    'data_extraction_pipeline',
+    'data_extraction_pipeline_with_dvc',
     default_args=default_args,
-    description='A DAG to extract, transform, and store data from websites',
+    description='A DAG to extract, transform, store data from websites and manage data versioning with DVC',
     schedule_interval=timedelta(days=1),
     catchup=False,
 ) as dag:
@@ -93,5 +105,9 @@ with DAG(
         python_callable=store_data,
     )
 
-    t1 >> t2 >> t3  # Set task dependencies
+    t4 = PythonOperator(
+        task_id='dvc_add_commit_push',
+        python_callable=dvc_add_commit_push,
+    )
 
+    t1 >> t2 >> t3 >> t4
