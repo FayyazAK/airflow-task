@@ -1,5 +1,5 @@
 from airflow import DAG
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 from datetime import datetime, timedelta
 import requests
 from bs4 import BeautifulSoup
@@ -7,7 +7,7 @@ import pandas as pd
 import nltk
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
-from airflow.operators.bash_operator import BashOperator
+from airflow.operators.bash import BashOperator
 
 default_args = {
     'owner': 'airflow',
@@ -86,7 +86,7 @@ with DAG(
     'data_extraction_pipeline_with_dvc',
     default_args=default_args,
     description='A DAG to extract, transform, store data from websites and manage data versioning with DVC',
-    schedule_interval=timedelta(days=1),
+    schedule=timedelta(days=1),
     catchup=False,
 ) as dag:
 
